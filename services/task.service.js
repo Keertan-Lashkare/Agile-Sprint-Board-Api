@@ -1,7 +1,11 @@
 import { Task, User } from '../models/Loader.js';
+import { Op } from 'sequelize';
 
-export const fetchAllTasks = async (page, limit) => {
+export const fetchAllTasks = async (page, limit, queryParams, currentUserId) => {
+  const { column, search, priority, assignedTo } = queryParams || {};
+
   const options = {
+    where: {},
     include: [
       { model: User, as: 'creator', attributes: ['id', 'name', 'email'] },
       { model: User, as: 'assignee', attributes: ['id', 'name', 'email'] },
@@ -9,12 +13,45 @@ export const fetchAllTasks = async (page, limit) => {
     order: [['createdAt', 'DESC']],
   };
 
+  const whereClauses = [
+    {
+      [Op.or]: [
+        { createdBy: currentUserId },
+        { assignedTo: currentUserId }
+      ]
+    }
+  ];
+
+  if (column) {
+    whereClauses.push({ column });
+  }
+
+  if (search) {
+    whereClauses.push({
+      [Op.or]: [
+        { title: { [Op.iLike]: `%${search}%` } },
+        { description: { [Op.iLike]: `%${search}%` } }
+      ]
+    });
+  }
+
+  if (priority && priority !== 'all') {
+    whereClauses.push({ priority });
+  }
+
+  if (assignedTo) {
+    whereClauses.push({ assignedTo: parseInt(assignedTo) });
+  }
+
+  options.where = { [Op.and]: whereClauses };
+
   if (page && limit) {
     options.limit = parseInt(limit);
     options.offset = (parseInt(page) - 1) * parseInt(limit);
   }
 
-  return await Task.findAll(options);
+  const { count, rows } = await Task.findAndCountAll(options);
+  return { tasks: rows, total: count };
 };
 
 export const createTaskRecord = async (taskData, creatorId) => {
