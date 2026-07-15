@@ -11,7 +11,6 @@ const router = Router();
 
 router.use(authenticate);
 
-// CRUD routes
 router.get('/', getAllTasks);
 router.post('/', createTask);
 router.patch('/:id', updateTask);

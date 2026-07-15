@@ -1,13 +1,20 @@
 import { Task, User } from '../models/Loader.js';
 
-export const fetchAllTasks = async () => {
-  return await Task.findAll({
+export const fetchAllTasks = async (page, limit) => {
+  const options = {
     include: [
       { model: User, as: 'creator', attributes: ['id', 'name', 'email'] },
       { model: User, as: 'assignee', attributes: ['id', 'name', 'email'] },
     ],
     order: [['createdAt', 'DESC']],
-  });
+  };
+
+  if (page && limit) {
+    options.limit = parseInt(limit);
+    options.offset = (parseInt(page) - 1) * parseInt(limit);
+  }
+
+  return await Task.findAll(options);
 };
 
 export const createTaskRecord = async (taskData, creatorId) => {

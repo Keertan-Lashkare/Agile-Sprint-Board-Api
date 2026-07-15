@@ -12,6 +12,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/auth', loginRouter);
 app.use('/api/tasks', taskRoutes);
+
 app.get('/', (req, res) => {
   res.json({ message: 'Agile Sprint Board server is working ' });
 });

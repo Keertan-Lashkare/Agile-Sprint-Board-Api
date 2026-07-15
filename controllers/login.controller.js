@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/Loader.js';
 
-// sing up funtion
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -45,7 +44,6 @@ export const register = async (req, res) => {
   }
 };
 
-// login funtion
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -81,5 +79,15 @@ export const login = async (req, res) => {
       message: 'Internal server error during login', 
       error: error.message 
     });
+  }
+};
+
+export const getUsers = async (req, res) => {
+  try {
+    const users = await User.findAll({ attributes: ['id', 'name', 'email'] });
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error('Get Users Error:', error.message);
+    return res.status(500).json({ message: 'Internal server error fetching users', error: error.message });
   }
 };
