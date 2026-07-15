@@ -96,7 +96,7 @@ Open a new terminal:
 git clone https://github.com/Keertan-Lashkare/Agile-Sprint-Board-Web.git
 cd Agile-Sprint-Board-Web
 npm install
-npm serve
+ng serve
 ```
 
 Runs at → `http://localhost:4200`
